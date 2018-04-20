@@ -1,0 +1,7 @@
+
+<div>
+  <h3 *ngIf="detailPage">{{detailPage.title}}</h3>
+  <div *ngIf="graphData">
+    <app-graph [data]="graphData"></app-graph>
+  </div>
+</div>

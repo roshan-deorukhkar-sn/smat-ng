@@ -1,4 +1,12 @@
-
+.main-container {
+	margin: 100px auto;
+	width: 100%;
+	padding: 10px;
+}
+body {
+	font-family: 'Source Sans Pro', Helvetica,Arial,sans-serif;
+	font-size: 13px;
+}
 .chartlines {
 	fill: none;
 	stroke-width: 1.5px;
