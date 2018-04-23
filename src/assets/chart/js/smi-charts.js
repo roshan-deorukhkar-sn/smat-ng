@@ -402,7 +402,7 @@
 
 	function resetLegends(legends) {		
 		legends.each(function(values, keys) {
-			console.log(legend.select("circle"))
+			//console.log(legend.select("circle"))
 		});
 	}
 }( jQuery ));

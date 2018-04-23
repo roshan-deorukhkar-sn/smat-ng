@@ -9,9 +9,3 @@ export interface GraphData<Object> {
     points: any;
     type: string;
 }
-export interface Element {
-    name: string;
-    position: number;
-    weight: number;
-    symbol: string;
-}

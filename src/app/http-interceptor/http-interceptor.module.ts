@@ -9,7 +9,7 @@ export class HttpsRequestInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     //const duplicateReq = request.clone({headers: request.headers.set("Access-Control-Allow-Origin","http://sm-interactive-dev.dev.cf.private.springer.com/")});
     request.headers.set("Access-Control-Allow-Origin","http://sm-interactive-dev.dev.cf.private.springer.com/");
-    console.log(request)
+    //console.log(request)
     return next.handle(request);
   }
 };

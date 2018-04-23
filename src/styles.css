@@ -1,9 +1,23 @@
-
+html, html * {
+	font-family: 'Source Sans Pro';
+}
+.wrapper {
+	width: 100%;
+	max-width: 1200px;
+}
+.right-panel {
+	background: #f8f9fa;
+}
+.main {
+	padding: 25px 0;
+}
+.navbar-container {
+	background: #f8f9fa;
+}
 .chartlines {
 	fill: none;
 	stroke-width: 1.5px;
 }
-
 .axis text {
 	font-size: 12pt;
 }

@@ -15,7 +15,6 @@ export class GraphComponent implements OnChanges {
   
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data']) {
-      console.log(this.data)
       $(".chart").smiCharts({
         data: this.data['points'],
         type: this.data['type'],
