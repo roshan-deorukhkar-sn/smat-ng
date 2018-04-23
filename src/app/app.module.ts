@@ -17,6 +17,8 @@ import { InterceptorMdule } from './http-interceptor/http-interceptor.module';
 
 import { DataService } from './data.service';
 import { GraphComponent } from './graph/graph.component';
+import {MatTableModule} from '@angular/material/table';
+import {CdkTableModule} from '@angular/cdk/table';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -41,7 +43,8 @@ const routes: Routes = [
     RouterModule.forRoot(routes),
     HttpClientModule,
     HttpModule,
-    InterceptorMdule
+    InterceptorMdule,
+    MatTableModule
   ],
   providers: [DataService],
   bootstrap: [AppComponent]

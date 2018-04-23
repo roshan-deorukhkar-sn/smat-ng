@@ -10,6 +10,7 @@ export class GraphComponent implements OnChanges {
   @Input() 
   data: Object
   //graphData : any
+
   constructor() { }
   
   ngOnChanges(changes: SimpleChanges) {
