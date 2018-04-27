@@ -1,0 +1,32 @@
+<!-- 
+<div class="slider-content">
+  <div class="slider-title">Slider title 1</div>
+  <div class="slider-inputs">
+    <div class="min-box"><input type="text" name="min" class="min"></div>
+    <div class="max-box"><input type="text" name="max" class="max"></div>
+  </div>
+  <div class="slider-element"></div>
+</div> 
+-->
+<div *ngIf="silderData" class="slider-content col">
+  <div class="row">
+      <h6 *ngIf="title" #sliderTitle class="slider-title">{{title}}</h6>
+  </div>
+  
+  
+  <div class="row">
+    <div class="slider-inputs row">
+      <div class="min-box col-5"><input #sliderMin type="text" name="min" class="min" value="{{min}}"></div>
+      <div class="max-box col-5 offset-2"><input #sliderMax type="text" name="max" class="max" value="{{max}}"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+        <div class="row">
+          <div *ngIf="sliderName" #sliderElem class="col slider-element {{sliderName}}"></div>
+        </div>
+    </div>
+  </div>
+  
+</div> 

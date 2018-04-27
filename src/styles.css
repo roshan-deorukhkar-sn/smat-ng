@@ -1,4 +1,4 @@
-html, html * {
+html, body * {
 	font-family: 'Source Sans Pro';
 }
 .wrapper {
@@ -8,8 +8,10 @@ html, html * {
 .right-panel {
 	background: #f8f9fa;
 }
-.main {
-	padding: 25px 0;
+
+.left-panel, .home {
+	padding-top: 25px;
+	padding-bottom: 25px;
 }
 .navbar-container {
 	background: #f8f9fa;
@@ -36,4 +38,21 @@ html, html * {
 }
 .chartlines text {
 	font-size: 8pt;
+}
+
+.slider-content {
+	margin-top: 15px;
+}
+.slider-element {
+	margin: 15px 8px;
+}
+
+.slider-inputs input {
+	width: 100%;
+	float: left;
+}
+
+.breadcrumb-content {
+	padding-top: 20px;
+	padding-bottom: 20px;
 }

@@ -1,0 +1,30 @@
+<div class="row">
+  <div class="col-12">
+    <nav aria-label="breadcrumb breadcrumb-content">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Overview</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h3>Available substances</h3>
+    <data-table
+      [items]="substance.data"
+      [pagination]="false"
+      [indexColumn]="false"
+      [selectColumn]="false"
+      (rowClick)="clickedOnRow($event)"
+      [multiSelect]="false">
+      <data-table-column
+        *ngFor="let curColumn of substance.headers"
+        property="{{curColumn.key}}"
+        header="{{curColumn.value}}"
+        sortable="true">
+      </data-table-column>
+    </data-table>
+  </div>
+</div> 

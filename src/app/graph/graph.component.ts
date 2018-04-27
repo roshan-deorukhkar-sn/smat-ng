@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import * as d3 from "d3";
 declare var $: any;
 @Component({
@@ -11,15 +11,19 @@ export class GraphComponent implements OnChanges {
   data: Object
   //graphData : any
 
+  @Output() 
+  onLoaded: EventEmitter<any> = new EventEmitter()
+
   constructor() { }
   
   ngOnChanges(changes: SimpleChanges) {
+    let el = this
     if (changes['data']) {
       $(".chart").smiCharts({
         data: this.data['points'],
         type: this.data['type'],
-        complete: function(){
-          //console.log("complete") 
+        complete: function(ui){
+          el.onLoaded.emit(ui);
         }
       });
     }

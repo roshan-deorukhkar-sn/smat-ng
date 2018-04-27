@@ -26,25 +26,17 @@
 	        
 	        //callback complete()
 	        if ( $.isFunction( settings.complete ) ) {
-		        settings.complete.call( this );
+		        settings.complete.call(this, ele );
 		    }
 	    });
     };
-
-    // private methods to protect inner implementation
-	//var createSVG = function(options, element) {
-	
-
-		
-
 		
     function renderScatter(data,ele) {
-		console.log("data", data)
 		var outerWidth = 700;
 		var outerHeight = 380;
 		var margin = { left: 80, top: 35, right: 100, bottom: 60 };
 		console.log(data[0].conditionalProperties[0].name)
-		var xColumn = data[0].conditionalProperties[0].name;//"System Pressure";
+		var xColumn = data[0].conditionalProperties[0].name; //"System Pressure";
 		var yColumn = data[0].property.name;
 		var colorColumn = yColumn;
 		var lineColumn = colorColumn;
@@ -161,7 +153,14 @@
 		  })
 		  .attr("r", 3)
 		  .attr("fill", "#00aa88");
-    }
+	}
+	
+	/* let graphArray = {
+		colorColumn : "Ssytem temerature",
+		xColumn: "conditional property name",
+		yColumn: "primaryProperty name",
+		legendCoulmn: "other conditional propertyname(temperature)"
+	} */
 
 	function renderLine(data, ele){
 		
@@ -263,6 +262,8 @@
 			tempArr[key] = abc		 
 		});
 
+		console.log(tempArr)
+
 		colorArray = ["#7dc215", "#f5a623"]
 		//console.log(xAxisG, xScale.domain(d3.extent(tempArr, function (d){  return d[xColumn]; })))
 
@@ -275,7 +276,9 @@
         var nested = d3.nest()
           .key(function (d){ return d.substance; })
           .key(function (d){ return d[lineColumn] + d["unit"]; }).sortValues(function(a, b) { return a['System Pressure'] - b['System Pressure']})
-          .entries(tempArr);
+		  .entries(tempArr);
+		  
+		  console.log(nested)
             
         $.each(nested, function(k, v){
 	        var chartLines = g.selectAll(".chart-lines" + k)
@@ -323,11 +326,7 @@
 				.attr('r', 3)
 				.on("click", function (d) {                                  
 		      		console.log(d, this)
-		        }) 
-
-			
-
-			
+		        }) 			
         })
 			
 

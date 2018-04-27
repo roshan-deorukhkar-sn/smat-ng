@@ -19,11 +19,15 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
       "styles": [
-        "../node_modules/ag-grid/dist/styles/ag-grid.css",
+        "../node_modules/bootstrap/dist/css/bootstrap.min.css",
+        "assets/jquery-ui/jquery-ui.min.css",
+        "../node_modules/ng2-toastr/bundles/ng2-toastr.min.css",
         "styles.css"
       ],
       "scripts": [
         "../node_modules/jquery/dist/jquery.min.js",
+        "../node_modules/bootstrap/dist/js/bootstrap.min.js",
+        "assets/jquery-ui/sm-jquery-ui.extended.min.js",
         "../node_modules/d3/dist/d3.min.js",
         "assets/chart/js/d3-legend.js",
         "assets/chart/js/smi-charts.js"

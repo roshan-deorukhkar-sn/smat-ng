@@ -1,20 +1,44 @@
-
-<div class="left-panel col-sm-12 col-md-9">
-  <h3 *ngIf="detailPage">{{detailPage.title}}</h3>
-  <div *ngIf="graphData">
-    <app-graph [data]="graphData"></app-graph>
+<div class="row">
+  <div class="col-12 breadcrumb-content">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/">Overview</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Adsorption</li>
+      </ol>
+    </nav>
   </div>
-  <mat-table #table [dataSource]="tableData">
-    <ng-container *ngFor="let curColumn of tableHeaders"  matColumnDef="{{curColumn}}">
-      <mat-header-cell *matHeaderCellDef> {{curColumn}} </mat-header-cell>
-      <mat-cell *matCellDef="let element" [innerHTML]="element[curColumn|lowercase]" >  </mat-cell>
-    </ng-container>
-
-    <mat-header-row *matHeaderRowDef="tableHeaders"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: tableHeaders;"></mat-row>
-  </mat-table>
-  
 </div>
-<div class="right-panel col-sm-12 col-md-3">
+<div class="row">
+  <div class="left-panel col-sm-12 col-md-9">
+      <h3 *ngIf="detailPage">{{detailPage.title}}</h3>
+      <div *ngIf="graphData">
+        <app-graph [data]="graphData" (onLoaded)="graphLoaded($event)"></app-graph>
+      </div>
 
+      <div class="row">
+        <div class="col-12">
+          <data-table
+            [items]="tableData"
+            [pagination]="false"
+            [indexColumn]="false"
+            [selectColumn]="false"
+            [multiSelect]="false">
+            <data-table-column
+              *ngFor="let curColumn of tableHeaders"
+              property="{{curColumn.key}}"
+              header="{{curColumn.value}}"
+              sortable="true">
+            </data-table-column>
+          </data-table>
+        </div>
+      </div> 
+
+    </div>
+    
+    <div class="right-panel col-sm-12 col-md-3">
+      <div *ngFor="let eachSlider of sliderData" class="section">
+        <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
+      </div>
+    </div>
 </div>
