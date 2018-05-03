@@ -8,7 +8,7 @@
   <div class="slider-element"></div>
 </div> 
 -->
-<div *ngIf="silderData" class="slider-content col">
+<div *ngIf="silderData" role="{{role}}" id={{id}} class="slider-content col content-{{sliderName}}">
   <div class="row">
       <h6 *ngIf="title" #sliderTitle class="slider-title">{{title}}</h6>
   </div>

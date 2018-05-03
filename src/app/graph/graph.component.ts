@@ -9,7 +9,6 @@ declare var $: any;
 export class GraphComponent implements OnChanges {
   @Input() 
   data: Object
-  //graphData : any
 
   @Output() 
   onLoaded: EventEmitter<any> = new EventEmitter()
@@ -21,7 +20,12 @@ export class GraphComponent implements OnChanges {
     if (changes['data']) {
       $(".chart").smiCharts({
         data: this.data['points'],
+        chartData: this.data['graphData'],
         type: this.data['type'],
+        xAxis: this.data['xAxis'],
+        yAxis: this.data['yAxis'],
+        lineAxis: this.data['lineAxis'],
+        colorTheme: this.data['colorTheme'],
         complete: function(ui){
           el.onLoaded.emit(ui);
         }

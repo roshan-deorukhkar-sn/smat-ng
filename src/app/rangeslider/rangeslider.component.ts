@@ -20,6 +20,8 @@ export class RangesliderComponent implements OnChanges, AfterViewChecked {
   title: String
   min: string
   max: string
+  id: string
+  role: string
   options: Object
 
   @Output() 
@@ -63,6 +65,8 @@ export class RangesliderComponent implements OnChanges, AfterViewChecked {
         this.title = this.getSliderTitle(this.silderData)
         this.min = this.getMinForSlider(this.silderData)
         this.max = this.getMaxForSlider(this.silderData)
+        this.id = this.silderData['id']
+        this.role = this.silderData['role']
       }
     }
   }

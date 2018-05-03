@@ -5,10 +5,21 @@
 	        colorTheme: ["#8BA9D0", "#6A90C1", "#066CA9", "#004B8C"],
 	        ticks: 5,
 	        url: "",
-	        data: [],
+			data: [],
+			chartData: [],
+			scale: [],
+			xAxis: "System Pressure",
+			yAxis: "Adsorption",
+			lineAxis: "System Temperature",
 	        type: "scatter" // scatter, line, multiline
-	    };
-	 
+		};
+		
+		var defaultValues = {
+			data : {
+
+			}
+		}
+		plugin = this
 	    var settings = $.extend( {}, defaults, options );
 	 	
 	    return this.each(function() {
@@ -19,166 +30,125 @@
 			        renderScatter(settings.data,ele)
 			        break;
 			    case "line":
-			        renderLine(settings.data,ele)
+			        renderLine(settings.data, settings.chartData, ele, plugin, settings)
 			        break;
 			}
 
 	        
 	        //callback complete()
-	        if ( $.isFunction( settings.complete ) ) {
-		        settings.complete.call(this, ele );
+	        if ( $.isFunction( settings.complete, plugin ) ) {
+		        settings.complete.call(this, plugin );
 		    }
 	    });
     };
-		
-    function renderScatter(data,ele) {
-		var outerWidth = 700;
-		var outerHeight = 380;
-		var margin = { left: 80, top: 35, right: 100, bottom: 60 };
-		console.log(data[0].conditionalProperties[0].name)
-		var xColumn = data[0].conditionalProperties[0].name; //"System Pressure";
-		var yColumn = data[0].property.name;
-		var colorColumn = yColumn;
-		var lineColumn = colorColumn;
+	
+	/* getOuterWidth = function() {
+		return 700
+	}
+	getOuterHeight = function(data) {
+		return 390
+	}
 
-		var xAxisLabelText = xColumn;
-		var xAxisLabelOffset = 48;
+	getInnerWidth = function() {
+		return 700 - left - right
+	}
+	getInnerHeight = function(data) {
+		return 390 - top - bottom
+	}
 
-		var yAxisLabelText = yColumn;
-		var yAxisLabelOffset = 60;
+	getAroundMargins = function(data) {
+		return { left: 80, top: 35, right: 100, bottom: 60 }
+	}
+	getLegendAxis = function(data) {
+		return "System Temperature";
+	}
+	getXAxisData = function(data) {
+		return { "name" : data.conditionalProperties[1].name, "label" : data.conditionalProperties[1].name, "offset" : 48 }
+	}
+	getYAxisData = function(data) {
+		return { "name" : data.property.name, "label" : data.property.name, "offset" : 60 }
+	}
 
-		var innerWidth  = outerWidth  - margin.left - margin.right;
-		var innerHeight = outerHeight - margin.top  - margin.bottom;
-
-		var svg = d3.select(ele).append("svg")
+	createSVGElement = function(ele, outerWidth, outerHeight) {
+		return d3.select(ele).append("svg")
 					.attr("width", outerWidth)
 					.attr("height", outerHeight);
+	}
 
-		var legendGroup =  svg.append("g")
+	createLegendGroup = function(svg, innerWidth) {
+		return svg.append("g")
 							.attr("width", innerWidth);
+	}
 
-		var g =  svg.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	createGroupElement = function() {
+		return svg.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	}
 
-		var xAxisG =   g.append("g")
-						.attr("class", "x axis")
-						.attr("transform", "translate(0," + innerHeight + ")")
+	createXAxisGroup = function() {
+		return g.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + innerHeight + ")")
+	}
 
-		var xAxisLabel =  xAxisG.append("text")
-								.style("text-anchor", "middle")
-								.attr("transform", "translate(" + (innerWidth / 2) + "," + xAxisLabelOffset + ")")
-								.attr("class", "label")
-								.text(xAxisLabelText);
+	createXAxisLabel = function() {
+		return xAxisG.append("text")
+					.style("text-anchor", "middle")
+					.attr("transform", "translate(" + (innerWidth / 2) + "," + xAxisLabelOffset + ")")
+					.attr("class", "label")
+					.text(xAxisLabelText);
+	}
 
-		var yAxisG =   g.append("g")
-						.attr("class", "y axis");
+	createYAxisGroup = function() {
+		g.append("g")
+			.attr("class", "y axis");
+	}
 
-		var yAxisLabel =  yAxisG.append("text")
-								.style("text-anchor", "middle")
-								.attr("transform", "translate(-" + yAxisLabelOffset + "," + (innerHeight / 2) + ") rotate(-90)")
-								.attr("class", "label")
-								.text(yAxisLabelText);
+	createYAxisLabel = function() {
+		return yAxisG.append("text")
+					.style("text-anchor", "middle")
+					.attr("transform", "translate(-" + yAxisLabelOffset + "," + (innerHeight / 2) + ") rotate(-90)")
+					.attr("class", "label")
+					.text(yAxisLabelText);
+	}
 
-		var xScale = d3.scaleLinear().range([0, innerWidth]);
-		var yScale = d3.scaleLinear().range([innerHeight, 0]);
-		
+	getXScale = function() {
+		d3.scaleLinear().range([0, innerWidth]);
+	}
 
-		var xAxis = d3.axisBottom(xScale)
-										.tickSize(0-innerHeight)
-										.tickPadding(8)
-										.ticks(5);
+	getYScale = function() {
+		d3.scaleLinear().range([innerHeight, 0]);
+	}
 
-		var yAxis = d3.axisLeft(yScale)
-									.tickSize(0-innerWidth)
-									.tickPadding(8)
-									.ticks(5);
+	createXAxis = function() {
+		d3.axisBottom(xScale)
+			.tickSize(0-innerHeight)
+			.tickPadding(8)
+			.ticks(5);
+	}
 
+	createYAxis = function() {
+		d3.axisLeft(yScale)
+			.tickSize(0-innerWidth)
+			.tickPadding(8)
+			.ticks(5);
+	}
+
+	drawIsoTherms = function() {
 		var line =	  d3.line()
 							.x(function(d) { return xScale(d[xColumn]); })
 							.y(function(d) { return yScale(d[yColumn]); });
-
-    	var dataHeaders =[] 
-		dataHeaders.push(data[0].property.name, data[0].conditionalProperties[0].name , "substance","unit")
-		
-		tempArr = []
-		
-		$.each(data, function(key, value) {
-			abc = {}
-			if(!tempArr[key]) {
-				tempArr[key] = []
-			}	
-			
-			primaryValue = value.property.value
-			temperatureValue = conditionalPropertyValue = unit = null
-
-			$.each(value.conditionalProperties, function(i, v){
-				if(dataHeaders[1] == v.name) {
-					conditionalPropertyValue = v.value
-				}
-			})
-
-			abc[dataHeaders[1]] = parseFloat(conditionalPropertyValue);
-			abc[dataHeaders[0]] = parseFloat(primaryValue);	
-			abc[dataHeaders[2]] = value.substance;
-			abc[dataHeaders[3]] = unit;	
-			tempArr[key] = abc		 
-		});
-		
-
-		colorArray = ["#7dc215", "#f5a623"]
-		//console.log(xAxisG, xScale.domain(d3.extent(tempArr, function (d){  return d[xColumn]; })))
-
-        xScale.domain(d3.extent(tempArr, function (d){  return d[xColumn]; }));
-        yScale.domain([0, d3.max(tempArr, function (d){ return d[yColumn]; })]);
-
-        xAxisG.call(xAxis);
-        yAxisG.call(yAxis);
-
-        var nested = d3.nest()
-          .key(function (d){ return d.substance; })
-          .key(function (d){ return d[lineColumn] + d["unit"]; })
-          .entries(tempArr);
-
-        g.selectAll("circle")
-		  .data(tempArr)
-		  .enter()
-		  .append("circle")
-		  .attr("cx", function(d) {
-			  console.log(d[xColumn])
-		    return xScale(d[xColumn]);
-		  })
-		  .attr("cy", function(d) {
-			console.log(d[xColumn])
-		    return yScale(d[yColumn]);
-		  })
-		  .attr("r", 3)
-		  .attr("fill", "#00aa88");
-	}
-	
-	/* let graphArray = {
-		colorColumn : "Ssytem temerature",
-		xColumn: "conditional property name",
-		yColumn: "primaryProperty name",
-		legendCoulmn: "other conditional propertyname(temperature)"
 	} */
 
-	function renderLine(data, ele){
-		
+	function renderLine(data, chartData, ele, plugin, settings){
 		var outerWidth = 700;
 		var outerHeight = 380;
 		var margin = { left: 80, top: 35, right: 100, bottom: 60 };
 
-		var colorColumn = "System Temperature";
-
-		var xColumn = data[0].conditionalProperties[1].name;
-		var yColumn = data[0].property.name;
-
-		var lineColumn = colorColumn;
-
-		var xAxisLabelText = xColumn;
+		var xAxisLabelText = settings.xAxis;
 		var xAxisLabelOffset = 48;
 
-		var yAxisLabelText = yColumn;
+		var yAxisLabelText = settings.yAxis;
 		var yAxisLabelOffset = 60;
 
 		var innerWidth  = outerWidth  - margin.left - margin.right;
@@ -215,70 +185,33 @@
 
 		var xScale = d3.scaleLinear().range([0, innerWidth]);
 		var yScale = d3.scaleLinear().range([innerHeight, 0]);
+		plugin.scale = [xScale, yScale]
 		
-
 		var xAxis = d3.axisBottom(xScale)
 										.tickSize(0-innerHeight)
 										.tickPadding(8)
 										.ticks(5);
-
+		
+	
 		var yAxis = d3.axisLeft(yScale)
 									.tickSize(0-innerWidth)
 									.tickPadding(8)
 									.ticks(5);
 
 		var line =	  d3.line()
-							.x(function(d) { return xScale(d[xColumn]); })
-							.y(function(d) { return yScale(d[yColumn]); });
-		var dataHeaders =[] 
-		dataHeaders.push("System Temperature", data[0].conditionalProperties[1].name ,  data[0].property.name, "substance","unit")
-		
-		tempArr = []
-		
-		$.each(data, function(key, value) {
-			abc = {}
-			if(!tempArr[key]) {
-				tempArr[key] = []
-			}	
-			
-			primaryValue = value.property.value
-			temperatureValue = conditionalPropertyValue = unit = null
-
-			$.each(value.conditionalProperties, function(i, v){
-				if(dataHeaders[1] == v.name) {
-					conditionalPropertyValue = v.value
-				}
-				if(dataHeaders[0] == v.name) {
-					temperatureValue = v.value
-					unit = v.unit.symbol
-				}
-			})
-
-			abc[dataHeaders[0]] = parseFloat(temperatureValue);
-			abc[dataHeaders[1]] = parseFloat(conditionalPropertyValue);
-			abc[dataHeaders[2]] = parseFloat(primaryValue);	
-			abc[dataHeaders[3]] = value.substance;	
-			abc[dataHeaders[4]] = unit;	
-			tempArr[key] = abc		 
-		});
-
-		console.log(tempArr)
-
-		colorArray = ["#7dc215", "#f5a623"]
-		//console.log(xAxisG, xScale.domain(d3.extent(tempArr, function (d){  return d[xColumn]; })))
-
-        xScale.domain(d3.extent(tempArr, function (d){  return d[xColumn]; }));
-        yScale.domain([0, d3.max(tempArr, function (d){ return d[yColumn]; })]);
+							.x(function(d) { return xScale(d[settings.xAxis]); })
+							.y(function(d) { return yScale(d[settings.yAxis]); });
+	
+        xScale.domain(d3.extent(chartData, function (d){  return d[settings.xAxis]; }));
+        yScale.domain([0, d3.max(chartData, function (d){ return d[settings.yAxis]; })]);
 
         xAxisG.call(xAxis);
         yAxisG.call(yAxis);
 
         var nested = d3.nest()
           .key(function (d){ return d.substance; })
-          .key(function (d){ return d[lineColumn] + d["unit"]; }).sortValues(function(a, b) { return a['System Pressure'] - b['System Pressure']})
-		  .entries(tempArr);
-		  
-		  console.log(nested)
+          .key(function (d){ return d[settings.lineAxis] + d["unit"]; }).sortValues(function(a, b) { return a[settings.xAxis] - b[settings.xAxis]})
+		  .entries(chartData);
             
         $.each(nested, function(k, v){
 	        var chartLines = g.selectAll(".chart-lines" + k)
@@ -306,30 +239,29 @@
 			  chartLines.append("path")
 			      .attr("class", "line")
 			      .attr("d", function(d) { return line(d.values); })
-			      .style("stroke", colorArray[k]);
+			      .style("stroke", settings.colorTheme[k]);
 
 			  chartLines.append("text")
 			      .datum(function(d) { return {name: d.key , value: d.values[d.values.length - 1]}; })
-			      .attr("transform", function(d) { return "translate(" + xScale(d.value["System Pressure"]) + "," + yScale(d.value["Adsorption"]) + ")"; })
+			      .attr("transform", function(d) { return "translate(" + xScale(d.value[settings.xAxis]) + "," + yScale(d.value[settings.yAxis]) + ")"; })
 			      .attr("x", 5)
 			      .attr("dy", ".35em")
-			      .style("fill", colorArray[k])
+			      .style("fill", settings.colorTheme[k])
 			      .text(function(d) { return d.name; });
 
 			  // add circles
 			chartLines.selectAll('circle')
 				.data(function (d) { return d.values; })
 				.enter().append('circle')
-				.attr('cx', function (d) { return xScale(d["System Pressure"]); })
-				.attr('cy', function (d) { return yScale(d["Adsorption"]); })
-				.style("fill", colorArray[k])
+				.attr('cx', function (d) { return xScale(d[settings.xAxis]); })
+				.attr('cy', function (d) { return yScale(d[settings.yAxis]); })
+				.style("fill", settings.colorTheme[k])
 				.attr('r', 3)
 				.on("click", function (d) {                                  
 		      		console.log(d, this)
 		        }) 			
-        })
-			
-
+		})
+		
 		legend = legendGroup.selectAll('.legend')
     				.data(nested)
     				.enter()
@@ -340,7 +272,7 @@
 	        .attr('cx', 10)
 	        .attr('cy', 20)
 	        .attr('r', 4)
-	        .style('fill', function(d, i){  return colorArray[i]; });
+	        .style('fill', function(d, i){  return settings.colorTheme[i]; });
 	        	        	
 		//add the legend text
 	    legend.append('text')

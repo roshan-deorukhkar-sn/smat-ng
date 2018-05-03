@@ -14,6 +14,10 @@
       <h3 *ngIf="detailPage">{{detailPage.title}}</h3>
       <div *ngIf="graphData">
         <app-graph [data]="graphData" (onLoaded)="graphLoaded($event)"></app-graph>
+
+        <select (change)= "onPropertySelect($event.target)">
+          <option *ngFor="let property of properties; let i = index" [value]="property.id">{{property.name}}</option>
+        </select>
       </div>
 
       <div class="row">
@@ -33,6 +37,7 @@
           </data-table>
         </div>
       </div> 
+      
 
     </div>
     

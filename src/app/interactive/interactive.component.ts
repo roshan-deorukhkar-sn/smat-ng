@@ -25,14 +25,19 @@ export class InteractiveComponent implements OnInit {
   sliderData1 = {}
   sysId = ""
   propId = ""
+  properties = []
   //dataUrl = '/assets/json/data.json';
   dataUrl = "";
+  xAxis = ""
+  xScale = []
+  yScale = []
 
   constructor(private route: ActivatedRoute, private dataService:DataService, private loader: SlimLoadingBarService, public toastr: ToastsManager, vcr: ViewContainerRef) { 
     this.toastr.setRootViewContainerRef(vcr);
   }
   
   ngOnInit(){
+
     this.loader.start()
     this.route.params.subscribe( (params:any ) => {
       this.propId = params.propertyName
@@ -45,19 +50,38 @@ export class InteractiveComponent implements OnInit {
         (result:any) => {
           this.detailPage = result
 
-          this.graphData = { points: result.rows, type: "line" }
-
           result.columnHeaders.map(column => {
             this.tableHeaders.push({"key" : column.name.toLowerCase().replace(" ", "-"), "value": column.name });
           });
           
           this.tableData = this.getTableRows(result.rows, this.tableHeaders);
-
+          
           this.getAllProperties(result).map(current => {
             this.sliderData.push(this.getSliderDataForProperty(current, this.getDataByProperty(result, current)))
+            if(current.role == "conditional") {
+              this.properties.push(current)
+            }
           });
+          
+          this.xAxis = this.properties[0].name
+
+          this.graphData = { 
+            points: result.rows, 
+            type: "line", 
+            xAxis: this.xAxis,
+            yAxis: "Adsorption",
+            lineAxis: "System Temperature",
+            colorTheme: ["#8BA9D0", "#6A90C1", "#066CA9", "#004B8C"],
+            graphData: this.getRowsForGraph(result.rows, this.getAllProperties(result)) 
+          }
+
           this.loader.complete()
           this.toastr.success('Data loaded!', 'Success!');
+
+          /* setTimeout(()=> {
+            console.log(this.getConditionalPropertyDataById(result, this.onPropertySelectLoaded()))
+          },0) */
+          
         },
         error => {
           
@@ -65,6 +89,14 @@ export class InteractiveComponent implements OnInit {
           this.toastr.error('This is not good!', 'Oops!');
         }
       );
+  }
+
+  getPropertyName = function(propertyData) {
+    return propertyData.name
+  }
+
+  getConditionalPropertyDataById = function(result, id) {
+    return this.getConditionalProperties(result)[id]
   }
 
   getSliderDataForProperty = function( property, dataByProperty ) {
@@ -82,12 +114,20 @@ export class InteractiveComponent implements OnInit {
     let dataObject = {}
     dataObject['name'] = property.role + "-" + property.id
     dataObject['title'] = property.name
+    dataObject['id'] = property.id   
     dataObject['options'] = {}
     dataObject['options']['range'] = true
     dataObject['options']['min'] = range[0]
     dataObject['options']['max'] = range[1]
     dataObject['options']['values'] = range
+    dataObject['options']['step'] = this.getStepValue(range[0], range[1])
     return dataObject
+  }
+
+  getStepValue = function(min, max) {
+    let diff;
+    diff = max-min
+    return diff/1000;
   }
 
   getTableRows = function(rows, headers) {
@@ -127,20 +167,49 @@ export class InteractiveComponent implements OnInit {
     return generatedRow
   }
 
-  slides = function(event, element) {
-    console.log("slide")
-  }
-
-  changes = function(event, element) {
-    console.log("change")
+  getRowsForGraph = function(data, properties) {
+    let rows = [];
+    
+    let propertyList:any
+    data.map(eachRow => {
+      let row = {};
+      properties.map(property => {
+        if(property.role == "conditional") {
+          propertyList = this.getConditionalPropertyFromRow(eachRow, property)
+          row[property.name] = Number(propertyList.value);
+          row["unit"] = "K"         
+        }
+        else {
+          row[property.name] = Number(eachRow.property.value)
+          row["unit"] = "K" 
+        }
+        
+      });
+      row["substance"] = eachRow.substance;
+      rows.push(row)
+    })
+    return rows
   }
 
   getConditionalProperties = function(data) {
     return data.conditionalPropHeaders
   }
 
+  getSelectedPropertyById = function(data, id) {
+    let allProperties = this.getAllProperties(data)
+  }
+
   getPrimaryProperty = function(data) {
     return data.rows[0].property
+  }
+
+  getConditionalPropertyFromRow = function (data, property) {
+    //console.log(data, property)
+    for (let key in data.conditionalProperties) {
+      if(data.conditionalProperties[key].id == property.id) {
+        return data.conditionalProperties[key]
+      }
+    }
   }
 
   getAllProperties = function(data) {
@@ -192,7 +261,53 @@ export class InteractiveComponent implements OnInit {
   getMinMaxForProperty = function(dataByProperty) {
     return [Number(d3.min(dataByProperty, function (d){ return Number(d.key); })), Number(d3.max(dataByProperty, function (d){ return Number(d.key); }))]
   }
+
+  getClosestPoint(point,points) {
+    let sortedPoints = points.sort()
+    let closestVal:any, isSelected:boolean
+    sortedPoints.map(  (current) => {
+      if( (current >= point && !isSelected)){
+        closestVal = current
+        isSelected = true
+        return true;
+      }
+    })
+    //console.log(array)
+    return closestVal;
+  }
+
   graphLoaded = function(el) {
-    console.log(el)
+    //console.log(d3.select(el[0]).selectAll(".domain").nodes()[0].getBBox())
+    this.xScale = el.scale[0]
+    this.yScale = el.scale[1]
+    console.log(this.xScale, this.yScale)
+  }
+
+  slides = function(event, element) {
+    let primarySliderEle = $("div[class*='content-primary-']")
+    console.log(primarySliderEle.find("div[class*='primary-']"))
+    /* let conditionalId = this.onPropertySelectLoaded();
+    let primarySliderEle = $("div[class*='content-primary-']")
+    let conditionalSliderEle = $(`div[class*='content-conditional-${conditionalId}']`)
+    if($(event.target).find("div[class*='primary-']")) {
+      console.log("primary")
+    }
+    if($(event.target).find(`conditional-${conditionalId}`)) {
+      console.log("conditional")
+    }
+    let minVal = this.getClosestPoint(element.values[0], [123, 287, 269, 500])
+    let maxVal = this.getClosestPoint(element.values[1], [123, 287, 269, 500]) */
+  }
+
+  changes = function(event, element) {
+    console.log("change")
+  }
+  onPropertySelect = function(event) {
+    console.log(event.value);
+    //this.xAxis
+    
+  }
+  onPropertySelectLoaded = function() {
+    return $("select").val()
   }
 }

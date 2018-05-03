@@ -7,5 +7,10 @@ export class DetailPage {
 
 export interface GraphData<Object> {
     points: any;
+    graphData: any;
     type: string;
+    xAxis: string,
+    yAxis: string,
+    lineAxis: string,
+    colorTheme: any
 }
