@@ -56,3 +56,24 @@ html, body * {
 	padding-top: 20px;
 	padding-bottom: 20px;
 }
+
+.overlay-container {
+    width: 100%;
+    height: 100%;
+}
+
+.overlay-marker-x-min,
+.overlay-marker-x-max,
+.overlay-marker-y-min,
+.overlay-marker-y-max {
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(227,227,227,0.8);
+}
+
+.graph-content {
+	position: relative;
+}

@@ -6,6 +6,7 @@ import * as d3 from "d3";
 import {SlimLoadingBarService} from "ng2-slim-loading-bar";
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { DataTable, DataTableResource } from 'angular5-data-table';
+declare var $: any;
 
 import { DetailPage, GraphData } from '../interactive-data';
 
@@ -29,8 +30,7 @@ export class InteractiveComponent implements OnInit {
   //dataUrl = '/assets/json/data.json';
   dataUrl = "";
   xAxis = ""
-  xScale = []
-  yScale = []
+  lodaedGraphData = []
 
   constructor(private route: ActivatedRoute, private dataService:DataService, private loader: SlimLoadingBarService, public toastr: ToastsManager, vcr: ViewContainerRef) { 
     this.toastr.setRootViewContainerRef(vcr);
@@ -112,10 +112,11 @@ export class InteractiveComponent implements OnInit {
     } */
     let range = this.getMinMaxForProperty(dataByProperty)
     let dataObject = {}
+    dataObject['options'] = {}
     dataObject['name'] = property.role + "-" + property.id
     dataObject['title'] = property.name
     dataObject['id'] = property.id   
-    dataObject['options'] = {}
+    dataObject['role'] = property.role
     dataObject['options']['range'] = true
     dataObject['options']['min'] = range[0]
     dataObject['options']['max'] = range[1]
@@ -277,26 +278,81 @@ export class InteractiveComponent implements OnInit {
   }
 
   graphLoaded = function(el) {
-    //console.log(d3.select(el[0]).selectAll(".domain").nodes()[0].getBBox())
-    this.xScale = el.scale[0]
-    this.yScale = el.scale[1]
-    console.log(this.xScale, this.yScale)
+    this.lodaedGraphData = el
   }
 
-  slides = function(event, element) {
-    let primarySliderEle = $("div[class*='content-primary-']")
-    console.log(primarySliderEle.find("div[class*='primary-']"))
-    /* let conditionalId = this.onPropertySelectLoaded();
-    let primarySliderEle = $("div[class*='content-primary-']")
-    let conditionalSliderEle = $(`div[class*='content-conditional-${conditionalId}']`)
-    if($(event.target).find("div[class*='primary-']")) {
-      console.log("primary")
+  slides = function(element, event ) {
+    if(element.target.getAttribute("data-sliderRole") == "primary") {
+      let propertyData = this.getPrimaryProperty(this.detailPage)
+      let range = this.getRangeFromDataByProperty(event.values, propertyData)
+      this.createCurtainForPrimaryProperty(range)
     }
-    if($(event.target).find(`conditional-${conditionalId}`)) {
-      console.log("conditional")
+    if(element.target.getAttribute("data-sliderRole") == "conditional") {
+      let conditionalPropertyData = this.getConditionalPropertyDataById(this.detailPage, this.onPropertySelectLoaded())
+      let range = this.getRangeFromDataByProperty(event.values, conditionalPropertyData)    
+      if(element.target.getAttribute("data-sliderId") == this.onPropertySelectLoaded()) {
+        this.createCurtainForConditionalProperty(range)
+      }
     }
-    let minVal = this.getClosestPoint(element.values[0], [123, 287, 269, 500])
-    let maxVal = this.getClosestPoint(element.values[1], [123, 287, 269, 500]) */
+    
+    
+  }
+
+  getRangeFromDataByProperty = function(values, propertyData) {
+    let dataPointsByProperty = []
+    let dataPointsKeysByProperty = this.getDataByProperty(this.detailPage, propertyData)
+    $.each(dataPointsKeysByProperty, (index, val) => {
+      dataPointsByProperty.push(Number(val.key))
+    });
+    
+    let minVal = this.getClosestPoint(values[0], dataPointsByProperty)
+    let maxVal = this.getClosestPoint(values[1], dataPointsByProperty)
+
+    return [minVal, maxVal]
+  }
+
+  createCurtainForPrimaryProperty = function(minMaxArray) {
+    let closestYMinPosition = this.lodaedGraphData.scale[1](minMaxArray[0])
+    let closestYMaxPosition = this.lodaedGraphData.scale[1](minMaxArray[1])
+    let boxData = d3.select(this.lodaedGraphData[0]).selectAll(".domain").nodes()[0].getBBox()
+    let HeightYminOverlay = (boxData.height - closestYMinPosition)
+    let HeightYmaxOverlay = closestYMaxPosition
+    let minTop = (boxData.height - HeightYminOverlay) + 35;
+    let maxTop = boxData.height
+
+    $('.overlay-marker-y-min').width(boxData.width);
+    $('.overlay-marker-y-min').height(HeightYminOverlay);
+    $('.overlay-marker-y-min').css("left", (boxData.x + 80)  + "px");
+    $('.overlay-marker-y-min').css("top", minTop + "px");
+
+    $('.overlay-marker-y-max').width(boxData.width);
+    $('.overlay-marker-y-max').height(HeightYmaxOverlay);
+    $('.overlay-marker-y-max').css("left", (boxData.x + 80)  + "px");
+    $('.overlay-marker-y-max').css("top", "35px");
+  }
+
+  createCurtainForConditionalProperty = function(minMaxArray) {
+    let closestXMinPosition = this.lodaedGraphData.scale[0](minMaxArray[0])
+    let closestXMaxPosition = this.lodaedGraphData.scale[0](minMaxArray[1])
+    let boxData = d3.select(this.lodaedGraphData[0]).selectAll(".domain").nodes()[0].getBBox()
+
+    let EndXPosition = boxData.width
+    let widthXminOverlay = closestXMinPosition - boxData.x
+    let widthXmaxOverlay = EndXPosition - closestXMaxPosition
+    let minLeft = boxData.x
+    let top = boxData.y
+    let maxLeft = (EndXPosition - widthXmaxOverlay) + 81
+
+
+    $('.overlay-marker-x-min').width(widthXminOverlay);
+    $('.overlay-marker-x-min').height(boxData.height);
+    $('.overlay-marker-x-min').css("left", (81) + "px");
+    $('.overlay-marker-x-min').css("top", (35) + "px");
+
+    $('.overlay-marker-x-max').width(widthXmaxOverlay);
+    $('.overlay-marker-x-max').height(boxData.height);
+    $('.overlay-marker-x-max').css("left", (maxLeft) + "px");
+    $('.overlay-marker-x-max').css("top", (35) + "px");
   }
 
   changes = function(event, element) {
@@ -304,10 +360,12 @@ export class InteractiveComponent implements OnInit {
   }
   onPropertySelect = function(event) {
     console.log(event.value);
-    //this.xAxis
-    
   }
   onPropertySelectLoaded = function() {
     return $("select").val()
+  }
+
+  filter = function() {
+
   }
 }

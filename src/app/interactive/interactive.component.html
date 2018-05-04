@@ -12,9 +12,15 @@
 <div class="row">
   <div class="left-panel col-sm-12 col-md-9">
       <h3 *ngIf="detailPage">{{detailPage.title}}</h3>
-      <div *ngIf="graphData">
+      <div *ngIf="graphData" class="graph-content">
+        
         <app-graph [data]="graphData" (onLoaded)="graphLoaded($event)"></app-graph>
-
+        <div class="overlay-container">
+          <div class="overlay-marker-x-min"></div>
+          <div class="overlay-marker-y-min"></div>
+          <div class="overlay-marker-x-max"></div>
+          <div class="overlay-marker-y-max"></div>
+        </div>
         <select (change)= "onPropertySelect($event.target)">
           <option *ngFor="let property of properties; let i = index" [value]="property.id">{{property.name}}</option>
         </select>
@@ -45,5 +51,6 @@
       <div *ngFor="let eachSlider of sliderData" class="section">
         <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
       </div>
+      <button class="btn active" (click)="filter()">Filter</button>
     </div>
 </div>
