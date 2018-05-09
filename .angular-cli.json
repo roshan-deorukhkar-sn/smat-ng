@@ -26,6 +26,7 @@
       ],
       "scripts": [
         "../node_modules/jquery/dist/jquery.min.js",
+        "../node_modules/jquery-migrate/dist/jquery-migrate.min.js",
         "../node_modules/bootstrap/dist/js/bootstrap.min.js",
         "assets/jquery-ui/sm-jquery-ui.extended.min.js",
         "../node_modules/d3/dist/d3.min.js",

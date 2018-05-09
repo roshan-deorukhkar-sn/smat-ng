@@ -94,7 +94,7 @@ export class OverviewComponent implements OnInit {
   }
 
   clickedOnRow = function(e) {
-    this.router.navigateByUrl(`interactive/${e.row.item.systemId}/Adsorption`)
+    this.router.navigateByUrl(`interactive/Adsorption/${e.row.item.systemId}`)
   }
   
 

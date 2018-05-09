@@ -142,8 +142,8 @@
 
 	function renderLine(data, chartData, ele, plugin, settings){
 		var outerWidth = 700;
-		var outerHeight = 380;
-		var margin = { left: 80, top: 35, right: 100, bottom: 60 };
+		var outerHeight = 500;
+		var margin = { left: 80, top: 35, right: 100, bottom: 120 };
 
 		var xAxisLabelText = settings.xAxis;
 		var xAxisLabelOffset = 48;
@@ -154,15 +154,50 @@
 		var innerWidth  = outerWidth  - margin.left - margin.right;
 		var innerHeight = outerHeight - margin.top  - margin.bottom;
 
+		$(ele).empty()
+
 		var svg = d3.select(ele).append("svg")
 					.attr("width", outerWidth)
 					.attr("height", outerHeight);
 
 		var legendGroup =  svg.append("g")
+							.attr('class', 'legend-group')
 							.attr("width", innerWidth);
 
+		
+		
+		var nested = d3.nest()
+			.key(function (d){ return d.substance; })
+			.key(function (d){ return d[settings.lineAxis] + d["unit"]; }).sortValues(function(a, b) { return a[settings.xAxis] - b[settings.xAxis]})
+			.entries(chartData);
+
+		legend = legendGroup.selectAll('.legend')
+			.data(nested)
+			.enter()
+			.append('g')
+			.attr('class', 'legend');
+
+		legend.append('circle')
+	        .attr('cx', 10)
+	        .attr('cy', function (d,i) { return 25 * (i+1)  })
+	        .attr('r', 4)
+			.style('fill', function(d, i){ return settings.colorTheme[i]; });
+			
+		
+
+		//d3.select(legendGroup).nodes()[0].getBBox()
+		//add the legend text
+	    legend.append('text')
+			.text(function(d, i){ return d.key; })
+			.attr("x", 20)
+			.attr("y" , function (d,i) { return 25 * (i+1)  })
+			.attr("dy", "0.35em")
+			//.call(wrap, 2);
+			
 		var g =  svg.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+					.attr("class","chart-area")
+					.attr("transform", "translate(" + margin.left + "," + (Number(margin.top) + Number($('.legend-group').get(0).getBBox().height)) + ")");
+	    //legend.call(resetLegends)
 
 		var xAxisG =   g.append("g")
 						.attr("class", "x axis")
@@ -172,6 +207,7 @@
 								.style("text-anchor", "middle")
 								.attr("transform", "translate(" + (innerWidth / 2) + "," + xAxisLabelOffset + ")")
 								.attr("class", "label")
+								.attr("fill", "#000")
 								.text(xAxisLabelText);
 
 		var yAxisG =   g.append("g")
@@ -181,22 +217,23 @@
 								.style("text-anchor", "middle")
 								.attr("transform", "translate(-" + yAxisLabelOffset + "," + (innerHeight / 2) + ") rotate(-90)")
 								.attr("class", "label")
+								.attr("fill", "#000")
 								.text(yAxisLabelText);
 
-		var xScale = d3.scaleLinear().range([0, innerWidth]);
-		var yScale = d3.scaleLinear().range([innerHeight, 0]);
+		var xScale = d3.scaleLinear().range([0, innerWidth]).nice();
+		var yScale = d3.scaleLinear().range([innerHeight, 0]).nice();
 		plugin.scale = [xScale, yScale]
 		
 		var xAxis = d3.axisBottom(xScale)
-										.tickSize(0-innerHeight)
-										.tickPadding(8)
-										.ticks(5);
+						.tickSize(0-innerHeight)
+						.tickPadding(8)
+						.ticks(5);
 		
 	
 		var yAxis = d3.axisLeft(yScale)
-									.tickSize(0-innerWidth)
-									.tickPadding(8)
-									.ticks(5);
+						.tickSize(0-innerWidth)
+						.tickPadding(8)
+						.ticks(5);
 
 		var line =	  d3.line()
 							.x(function(d) { return xScale(d[settings.xAxis]); })
@@ -208,33 +245,30 @@
         xAxisG.call(xAxis);
         yAxisG.call(yAxis);
 
-        var nested = d3.nest()
-          .key(function (d){ return d.substance; })
-          .key(function (d){ return d[settings.lineAxis] + d["unit"]; }).sortValues(function(a, b) { return a[settings.xAxis] - b[settings.xAxis]})
-		  .entries(chartData);
+        
             
         $.each(nested, function(k, v){
 	        var chartLines = g.selectAll(".chart-lines" + k)
-			      .data(v.values)
-			    .enter().append("g")
-			      .attr("class", "chartlines")
-			      .style("stroke-width",'2px')
-			      .on("mouseover", function (d) {                                  
-		      		d3.select(this)
-		      		.style("stroke-width",'3px')
-		      		.style("font-weight",700)
-		      		.selectAll('circle') 
-		      			.attr('r', 4)
+			      	.data(v.values)
+			    	.enter().append("g")
+			      	.attr("class", "chartlines")
+			      	.style("stroke-width",'2px')
+			      	.on("mouseover", function (d) {                                  
+						d3.select(this)
+						.style("stroke-width",'3px')
+						.style("font-weight",700)
+						.selectAll('circle') 
+							.attr('r', 4)
 
-		          })
-		          .on("mouseout",	function(d) {        //undo everything on the mouseout
-		      		d3.select(this)
-		        	.style("stroke-width",'2px')
-		        	.style("font-weight",400)
-		        	.selectAll('circle') 
-		      			.attr('r', 3);
+		          	})
+					.on("mouseout",	function(d) {        //undo everything on the mouseout
+						d3.select(this)
+						.style("stroke-width",'2px')
+						.style("font-weight",400)
+						.selectAll('circle') 
+							.attr('r', 3);
 
-		          });
+					});
 
 			  chartLines.append("path")
 			      .attr("class", "line")
@@ -262,24 +296,7 @@
 		        }) 			
 		})
 		
-		legend = legendGroup.selectAll('.legend')
-    				.data(nested)
-    				.enter()
-			        .append('g')
-			        .attr('class', 'legend');
-
-		legend.append('circle')
-	        .attr('cx', 10)
-	        .attr('cy', 20)
-	        .attr('r', 4)
-	        .style('fill', function(d, i){  return settings.colorTheme[i]; });
-	        	        	
-		//add the legend text
-	    legend.append('text')
-	        .text(function(d, i){ return d.key; })
-	        .call(wrap, 2);
-
-	    legend.call(resetLegends)
+		
       }
 
     function wrap(text, column) {

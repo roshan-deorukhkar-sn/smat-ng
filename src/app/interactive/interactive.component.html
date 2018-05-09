@@ -48,9 +48,16 @@
     </div>
     
     <div class="right-panel col-sm-12 col-md-3">
-      <div *ngFor="let eachSlider of sliderData" class="section">
-        <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
+      <div class="slider-list">
+        <div *ngFor="let eachSlider of sliderData" class="section">
+          <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
+        </div>
       </div>
-      <button class="btn active" (click)="filter()">Filter</button>
+      
+      <button class="btn btn-primary" (click)="filter()">Filter</button>
+
+      <div *ngIf="graphData" class="col-12">
+        <app-autocomplete [dataOptions]="autocompleteOptions" (onSelect)="select($event)"></app-autocomplete>
+      </div>
     </div>
 </div>

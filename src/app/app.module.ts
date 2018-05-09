@@ -24,11 +24,14 @@ import { MatTableModule} from '@angular/material/table';
 import { CdkTableModule} from '@angular/cdk/table';
 import { RangesliderComponent } from './rangeslider/rangeslider.component';
 import { OverviewComponent } from './overview/overview.component';
+import { AutocompleteComponent } from './autocomplete/autocomplete.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'overview/:propertyId', component: OverviewComponent },
-  { path: 'interactive/:systemId/:propertyName', component: InteractiveComponent },
+  { path: 'interactive/:propertyName/:systemId1', component: InteractiveComponent },
+  { path: 'interactive/:propertyName/:systemId1/:systemId2', component: InteractiveComponent },
+  { path: 'interactive/:propertyName/:systemId1/:systemId2/:systemId3', component: InteractiveComponent },
   { path: '**', component: PagenotfoundComponent }
 ];
 
@@ -44,7 +47,8 @@ const routes: Routes = [
     SmlogoComponent,
     GraphComponent,
     RangesliderComponent,
-    OverviewComponent
+    OverviewComponent,
+    AutocompleteComponent
   ],
   imports: [
     BrowserModule,

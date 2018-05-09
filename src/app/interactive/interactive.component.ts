@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd, RoutesRecognized } from '@angular/router';
 import { DataService } from '../data.service';
 import { Observable } from 'rxjs/Rx';
 import * as d3 from "d3";
-import {SlimLoadingBarService} from "ng2-slim-loading-bar";
+import { SlimLoadingBarService } from "ng2-slim-loading-bar";
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { DataTable, DataTableResource } from 'angular5-data-table';
+
 declare var $: any;
 
 import { DetailPage, GraphData } from '../interactive-data';
@@ -24,25 +25,52 @@ export class InteractiveComponent implements OnInit {
   tableData = []
   sliderData = []
   sliderData1 = {}
-  sysId = ""
+  sysId1 = ""
+  sysId2 = ""
+  sysId3 = ""
   propId = ""
   properties = []
   //dataUrl = '/assets/json/data.json';
   dataUrl = "";
   xAxis = ""
+  compareUrl = "https://materials.springer.com/interactive/comparableSystems?term=prop&isPure=false&primaryProperty=63|53&conditionalProperties=3|5&conditionalProperties=2|25&systemId=32086&systemId=32223"
   lodaedGraphData = []
+  autocompleteOptions = {};
+  
 
-  constructor(private route: ActivatedRoute, private dataService:DataService, private loader: SlimLoadingBarService, public toastr: ToastsManager, vcr: ViewContainerRef) { 
+  
+
+  constructor(private route: ActivatedRoute, 
+              private dataService:DataService, 
+              private loader: SlimLoadingBarService, 
+              public toastr: ToastsManager, 
+              vcr: ViewContainerRef,
+              private router: Router) 
+  { 
     this.toastr.setRootViewContainerRef(vcr);
   }
   
-  ngOnInit(){
+  
 
+  ngOnInit(){
     this.loader.start()
+   // console.log(this.route.paramMap.getAll(""))
     this.route.params.subscribe( (params:any ) => {
       this.propId = params.propertyName
-      this.sysId = params.systemId
-      this.dataUrl = `http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=${this.sysId}&propertyId=${this.propId}`
+      this.sysId1 = params.systemId1
+      this.dataUrl = `http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=${this.sysId1}&propertyId=${this.propId}`
+      if(params.systemId2) {
+        this.sysId2 = params.systemId2
+        this.dataUrl = `http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=${this.sysId1}&systemId=${this.sysId2}&propertyId=${this.propId}`
+      }
+
+      if(params.systemId3) {
+        this.sysId3 = params.systemId3
+        this.dataUrl = `http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=${this.sysId1}&systemId=${this.sysId2}&systemId=${this.sysId3}&propertyId=${this.propId}`
+      }
+
+      //this.dataUrl = `http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=${this.sysId1}&propertyId=${this.propId}`
+      //this.dataUrl = "http://sm-interactive-dev.dev.cf.private.springer.com/interactive?systemId=32070&systemId=32223&propertyId=Adsorption" */
     });
 
     this.dataService.getData(this.dataUrl, [])
@@ -71,16 +99,17 @@ export class InteractiveComponent implements OnInit {
             xAxis: this.xAxis,
             yAxis: "Adsorption",
             lineAxis: "System Temperature",
-            colorTheme: ["#8BA9D0", "#6A90C1", "#066CA9", "#004B8C"],
+            colorTheme: ['#7DC215','#F5A623','#3FBAE4'],
             graphData: this.getRowsForGraph(result.rows, this.getAllProperties(result)) 
+          }
+
+          this.autocompleteOptions = {
+            source: this.compareUrl,
+            minLength: 3
           }
 
           this.loader.complete()
           this.toastr.success('Data loaded!', 'Success!');
-
-          /* setTimeout(()=> {
-            console.log(this.getConditionalPropertyDataById(result, this.onPropertySelectLoaded()))
-          },0) */
           
         },
         error => {
@@ -205,7 +234,6 @@ export class InteractiveComponent implements OnInit {
   }
 
   getConditionalPropertyFromRow = function (data, property) {
-    //console.log(data, property)
     for (let key in data.conditionalProperties) {
       if(data.conditionalProperties[key].id == property.id) {
         return data.conditionalProperties[key]
@@ -279,6 +307,9 @@ export class InteractiveComponent implements OnInit {
 
   graphLoaded = function(el) {
     this.lodaedGraphData = el
+
+    this.resetXOverlay()
+    this.resetYOverlay()
   }
 
   slides = function(element, event ) {
@@ -294,8 +325,6 @@ export class InteractiveComponent implements OnInit {
         this.createCurtainForConditionalProperty(range)
       }
     }
-    
-    
   }
 
   getRangeFromDataByProperty = function(values, propertyData) {
@@ -315,9 +344,11 @@ export class InteractiveComponent implements OnInit {
     let closestYMinPosition = this.lodaedGraphData.scale[1](minMaxArray[0])
     let closestYMaxPosition = this.lodaedGraphData.scale[1](minMaxArray[1])
     let boxData = d3.select(this.lodaedGraphData[0]).selectAll(".domain").nodes()[0].getBBox()
+    let xAxisDim = d3.select(this.lodaedGraphData[0]).selectAll(".legend-group").nodes()[0].getBBox()
+    //console.log(boxData)
     let HeightYminOverlay = (boxData.height - closestYMinPosition)
     let HeightYmaxOverlay = closestYMaxPosition
-    let minTop = (boxData.height - HeightYminOverlay) + 35;
+    let minTop = (boxData.height - HeightYminOverlay) + (xAxisDim.height + 35);
     let maxTop = boxData.height
 
     $('.overlay-marker-y-min').width(boxData.width);
@@ -328,14 +359,14 @@ export class InteractiveComponent implements OnInit {
     $('.overlay-marker-y-max').width(boxData.width);
     $('.overlay-marker-y-max').height(HeightYmaxOverlay);
     $('.overlay-marker-y-max').css("left", (boxData.x + 80)  + "px");
-    $('.overlay-marker-y-max').css("top", "35px");
+    $('.overlay-marker-y-max').css("top", (xAxisDim.height + 35) + "px");
   }
 
   createCurtainForConditionalProperty = function(minMaxArray) {
     let closestXMinPosition = this.lodaedGraphData.scale[0](minMaxArray[0])
     let closestXMaxPosition = this.lodaedGraphData.scale[0](minMaxArray[1])
     let boxData = d3.select(this.lodaedGraphData[0]).selectAll(".domain").nodes()[0].getBBox()
-
+    let xAxisDim = d3.select(this.lodaedGraphData[0]).selectAll(".legend-group").nodes()[0].getBBox()
     let EndXPosition = boxData.width
     let widthXminOverlay = closestXMinPosition - boxData.x
     let widthXmaxOverlay = EndXPosition - closestXMaxPosition
@@ -347,12 +378,12 @@ export class InteractiveComponent implements OnInit {
     $('.overlay-marker-x-min').width(widthXminOverlay);
     $('.overlay-marker-x-min').height(boxData.height);
     $('.overlay-marker-x-min').css("left", (81) + "px");
-    $('.overlay-marker-x-min').css("top", (35) + "px");
+    $('.overlay-marker-x-min').css("top", (xAxisDim.height + 35) + "px");
 
     $('.overlay-marker-x-max').width(widthXmaxOverlay);
     $('.overlay-marker-x-max').height(boxData.height);
     $('.overlay-marker-x-max').css("left", (maxLeft) + "px");
-    $('.overlay-marker-x-max').css("top", (35) + "px");
+    $('.overlay-marker-x-max').css("top", (xAxisDim.height + 35) + "px");
   }
 
   changes = function(event, element) {
@@ -366,6 +397,92 @@ export class InteractiveComponent implements OnInit {
   }
 
   filter = function() {
+    let conditionalPropertyId = this.onPropertySelectLoaded()
+    let primaryProperty = this.getPrimaryProperty(this.detailPage)
+    let conditionalPropertyValues = this.getConditionalPropertySliderValues(conditionalPropertyId)
+    let primaryPropertyValues = this.getPrimaryPropertySliderValues(primaryProperty.id)
 
+    let filteredData  = this.filterData(this.detailPage, conditionalPropertyValues,primaryPropertyValues)
+    this.tableData = this.getTableRows(filteredData.rows, this.tableHeaders);
+    
+    this.graphData = { 
+      points: filteredData.rows, 
+      type: "line", 
+      xAxis: this.xAxis,
+      yAxis: "Adsorption",
+      lineAxis: "System Temperature",
+      colorTheme: ['#7DC215','#F5A623','#3FBAE4'],
+      graphData: this.getRowsForGraph(filteredData.rows, this.getAllProperties(filteredData)) 
+    }
+    this.sliderData = []
+    this.getAllProperties(filteredData).map(current => {
+      this.sliderData.push(this.getSliderDataForProperty(current, this.getDataByProperty(filteredData, current)))
+      if(current.role == "conditional") {
+        this.properties.push(current)
+      }
+    });
+
+    
+  }
+
+  getConditionalPropertySliderValues = function(propertyId) {
+    return $(`.conditional-${propertyId}`).slider( "option", "values" )
+  }
+
+  getPrimaryPropertySliderValues = function(propertyId) {
+    return $(`.primary-${propertyId}`).slider( "option", "values" )
+  }
+
+  filterData = function(data, xRange, yRange) {
+    let filteredRows = [];
+    let instance = this
+    $.each(data.rows, function(index, row) {
+        let conditionalProperty, filterIndex, i, len, ref;
+        filterIndex = false;
+
+        
+        if (Number(row.property.value) >= yRange[0] && Number(row.property.value) <= yRange[1]) {
+          filterIndex = true;
+          conditionalProperty = instance.getSelectedConditionalPropertyDataFromRow(row)
+          if (!(Number(conditionalProperty.value) >= xRange[0] && Number(conditionalProperty.value) <= xRange[1])) {
+            filterIndex = false;
+          }
+         }
+        if (filterIndex) {
+          return filteredRows.push(row);
+        }
+    });
+    data.rows = filteredRows;
+    return data;
+  }
+
+  getSelectedConditionalPropertyDataFromRow = function(row) {
+    let instance = this
+    let property;
+    $.each(row.conditionalProperties, (index, eachConditionalProperty) =>
+    {
+      if(eachConditionalProperty.id == Number(instance.onPropertySelectLoaded())) {
+        property = eachConditionalProperty; 
+      }
+    });
+
+    return property
+  }
+  resetXOverlay = function() {
+    $('.overlay-marker-x-min').width(0)
+    $('.overlay-marker-x-min').height(0)
+    $('.overlay-marker-x-max').removeAttr("style")
+  }
+
+  resetYOverlay = function() {
+    $('.overlay-marker-y-min').width(0)
+    $('.overlay-marker-y-min').height(0)
+    $('.overlay-marker-y-max').removeAttr("style")
+  }
+
+  select = function(event){
+    let item = event[1].item
+    let e = event[0]
+    this.router.navigateByUrl(`${this.router.url}/${item.SystemId}`)
   }
 }

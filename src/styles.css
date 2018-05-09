@@ -77,3 +77,6 @@ html, body * {
 .graph-content {
 	position: relative;
 }
+.sm-autocomplete {
+	margin-top: 15px;
+}
