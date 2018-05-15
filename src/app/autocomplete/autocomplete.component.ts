@@ -44,55 +44,7 @@ export class AutocompleteComponent implements OnInit, OnChanges, AfterViewChecke
     }
   }
 
-  ngAfterViewChecked() {/* 
-    console.log("in view")
-    let instance = this
-    if(Object.keys(this.dataOptions).length > 0) {
-      let pop = $( this.autocompleteElem.nativeElement ).autocomplete({
-        source: [
-          {
-            value: "jquery",
-            label: "jQuery",
-            desc: "the write less, do more, JavaScript library",
-            icon: "jquery_32x32.png"
-          },
-          {
-            value: "jquery-ui",
-            label: "jQuery UI",
-            desc: "the official user interface library for jQuery",
-            icon: "jqueryui_32x32.png"
-          },
-          {
-            value: "sizzlejs",
-            label: "Sizzle JS",
-            desc: "a pure-JavaScript CSS selector engine",
-            icon: "sizzlejs_32x32.png"
-          }
-        ],
-        minLength: instance.minLength,
-        appendTo: $(this.autocompleteElem.nativeElement).parent(),
-        focus: function( event, ui ) {
-          return false;
-        },
-        select: function( event, ui ) {
-          console.log(1)
-          //instance.onSelect.emit([event, ui]);
-          return false;
-        }
-      })
-      pop.autocomplete().data("uiAutocomplete")._renderItem = function( ul, item ) {
-        console.log(item)
-        $("<li></li>")
-          .data("item.autocomplete", item)
-          .append('<a>'+ item.value + '</a>')
-          .appendTo( ul );
-      };
-      console.log(pop)
-      pop.on( "autocompleteselect", function( event, ui ) {
-        console.log(2)
-        //instance.onSelect.emit([event, ui]);
-      } );
-    } */
+  ngAfterViewChecked() {
   }
 
   ngOnChanges(changes: SimpleChanges) {

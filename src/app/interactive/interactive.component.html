@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-12 breadcrumb-content">
+  <!-- <div class="col-12 breadcrumb-content">
     <nav aria-label="breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/">Home</a></li>
@@ -7,7 +7,7 @@
         <li class="breadcrumb-item active" aria-current="page">Adsorption</li>
       </ol>
     </nav>
-  </div>
+  </div> -->
 </div>
 <div class="row">
   <div class="left-panel col-sm-12 col-md-9">
@@ -32,6 +32,7 @@
             [items]="tableData"
             [pagination]="false"
             [indexColumn]="false"
+            [header]="false"
             [selectColumn]="false"
             [multiSelect]="false">
             <data-table-column
@@ -47,17 +48,44 @@
 
     </div>
     
-    <div class="right-panel col-sm-12 col-md-3">
-      <div class="slider-list">
-        <div *ngFor="let eachSlider of sliderData" class="section">
-          <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
+    <div *ngIf="graphData" class="right-panel col-sm-12 col-md-3">
+      <div class="card">
+        <div class="card-body">
+          <div class="slider-list">
+            <div *ngFor="let eachSlider of sliderData" class="section">
+              <app-rangeslider [silderData]="eachSlider" (onSlide)="slides($event[0], $event[1])" (onChange)="changes($event[0], $event[1])"></app-rangeslider>
+            </div>
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+              <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button class="btn btn-primary" (click)="filter()">Filter</button>
+              </div>
+              <div class="btn-group mr-2" role="group" aria-label="Second group">
+                <button type="button" (click)="reset()" class="btn btn-secondary">Reset</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
-      <button class="btn btn-primary" (click)="filter()">Filter</button>
+      
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-body">
+          <div class="col-12">
+            <div class="row">
+                <h5>Compare substance</h5>
+            </div>
 
-      <div *ngIf="graphData" class="col-12">
-        <app-autocomplete [dataOptions]="autocompleteOptions" (onSelect)="select($event)"></app-autocomplete>
+            <ul class="row" style="list-style: none;padding: 0;">
+                <li *ngFor="let substance of substanceList" class="col-12" style="margin: 0 0 10px 0; padding: 0; font-size: 12px;">
+                  
+                  <span>{{substance}}</span>
+                  <i style="margin: 2px 0 0 15px;" class="fas fa-minus-square"></i>
+                </li>
+              </ul>
+
+            <app-autocomplete [dataOptions]="autocompleteOptions" (onSelect)="select($event)"></app-autocomplete>
+          </div>
+        </div>
       </div>
     </div>
 </div>

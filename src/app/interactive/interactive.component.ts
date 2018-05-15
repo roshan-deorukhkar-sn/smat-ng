@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, NavigationEnd, RoutesRecognized } from '@angula
 import { DataService } from '../data.service';
 import { Observable } from 'rxjs/Rx';
 import * as d3 from "d3";
+import * as _ from "lodash";
 import { SlimLoadingBarService } from "ng2-slim-loading-bar";
 import { ToastsManager } from 'ng2-toastr/ng2-toastr';
 import { DataTable, DataTableResource } from 'angular5-data-table';
@@ -25,11 +26,13 @@ export class InteractiveComponent implements OnInit {
   tableData = []
   sliderData = []
   sliderData1 = {}
+  substanceList = []
   sysId1 = ""
   sysId2 = ""
   sysId3 = ""
   propId = ""
   properties = []
+  originalData: DetailPage
   //dataUrl = '/assets/json/data.json';
   dataUrl = "";
   xAxis = ""
@@ -77,7 +80,8 @@ export class InteractiveComponent implements OnInit {
       .subscribe(
         (result:any) => {
           this.detailPage = result
-
+          this.originalData = result
+          //console.log(this.originalData)
           result.columnHeaders.map(column => {
             this.tableHeaders.push({"key" : column.name.toLowerCase().replace(" ", "-"), "value": column.name });
           });
@@ -107,6 +111,8 @@ export class InteractiveComponent implements OnInit {
             source: this.compareUrl,
             minLength: 3
           }
+
+          this.substanceList = Object.keys( this.getSubstanceList(result) )
 
           this.loader.complete()
           this.toastr.success('Data loaded!', 'Success!');
@@ -292,18 +298,22 @@ export class InteractiveComponent implements OnInit {
   }
 
   getClosestPoint(point,points) {
-    let sortedPoints = points.sort()
+    let sortedPoints = _.sortBy(points);
     let closestVal:any, isSelected:boolean
+    isSelected = false
     sortedPoints.map(  (current) => {
-      if( (current >= point && !isSelected)){
+      if((current >= Number(point) && !isSelected)){
         closestVal = current
         isSelected = true
-        return true;
       }
     })
-    //console.log(array)
     return closestVal;
   }
+
+  sortNumber = function(a, b) {
+    return (a - b)
+  }
+    
 
   graphLoaded = function(el) {
     this.lodaedGraphData = el
@@ -421,8 +431,7 @@ export class InteractiveComponent implements OnInit {
         this.properties.push(current)
       }
     });
-
-    
+    //console.log(this.originalData)
   }
 
   getConditionalPropertySliderValues = function(propertyId) {
@@ -484,5 +493,43 @@ export class InteractiveComponent implements OnInit {
     let item = event[1].item
     let e = event[0]
     this.router.navigateByUrl(`${this.router.url}/${item.SystemId}`)
+  }
+
+  reset = function() {
+    this.loader.start()
+    this.tableData = this.getTableRows(this.originalData.rows, this.tableHeaders);
+    
+    this.getAllProperties(this.originalData).map(current => {
+      this.sliderData = this.getSliderDataForProperty(current, this.getDataByProperty(this.originalData, current))
+      if(current.role == "conditional") {
+        this.properties.push(current)
+      }
+    });
+    
+    this.xAxis = this.properties[0].name
+
+    this.graphData = { 
+      points: this.originalData.rows, 
+      type: "line", 
+      xAxis: this.xAxis,
+      yAxis: "Adsorption",
+      lineAxis: "System Temperature",
+      colorTheme: ['#7DC215','#F5A623','#3FBAE4'],
+      graphData: this.getRowsForGraph(this.originalData.rows, this.getAllProperties(this.originalData)) 
+    }
+
+    
+
+    this.autocompleteOptions = {
+      source: this.compareUrl,
+      minLength: 3
+    }
+
+    this.loader.complete()
+    this.toastr.success('Data loaded!', 'Success!');
+  }
+
+  getSubstanceList = function(data) {
+    return _.mapValues(_.groupBy(data.rows, 'substance'), clist => clist.map(row => row))
   }
 }

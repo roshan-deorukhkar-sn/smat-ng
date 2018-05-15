@@ -1,4 +1,4 @@
-<div class="row">
+<!-- <div class="row">
   <div class="col-12">
     <nav aria-label="breadcrumb breadcrumb-content">
       <ol class="breadcrumb">
@@ -7,7 +7,7 @@
       </ol>
     </nav>
   </div>
-</div>
+</div> -->
 
 <div class="row">
   <div class="col-12">
@@ -15,6 +15,7 @@
     <data-table
       [items]="substance.data"
       [pagination]="false"
+      [header]="false"
       [indexColumn]="false"
       [selectColumn]="false"
       (rowClick)="clickedOnRow($event)"

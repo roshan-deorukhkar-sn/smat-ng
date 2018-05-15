@@ -220,27 +220,38 @@
 								.attr("fill", "#000")
 								.text(yAxisLabelText);
 
-		var xScale = d3.scaleLinear().range([0, innerWidth]).nice();
-		var yScale = d3.scaleLinear().range([innerHeight, 0]).nice();
+		//var xScale = d3.scaleLinear().range([0, innerWidth]).nice();
+		//var yScale = d3.scaleLinear().range([innerHeight, 0]).nice();
+
+		var xScale = d3.scaleLinear()
+		               .domain(d3.extent(chartData, function (d){  return d[settings.xAxis]; }))
+		               .range([0, innerWidth])
+		               .nice();
+
+		var yScale = d3.scaleLinear()
+		               .domain([0, d3.max(chartData, function (d){ return d[settings.yAxis]; })])
+		               .range([innerHeight, 0])
+					   .nice();
+					   
 		plugin.scale = [xScale, yScale]
 		
-		var xAxis = d3.axisBottom(xScale)
-						.tickSize(0-innerHeight)
-						.tickPadding(8)
-						.ticks(5);
 		
-	
-		var yAxis = d3.axisLeft(yScale)
-						.tickSize(0-innerWidth)
-						.tickPadding(8)
-						.ticks(5);
 
 		var line =	  d3.line()
 							.x(function(d) { return xScale(d[settings.xAxis]); })
 							.y(function(d) { return yScale(d[settings.yAxis]); });
-	
-        xScale.domain(d3.extent(chartData, function (d){  return d[settings.xAxis]; }));
-        yScale.domain([0, d3.max(chartData, function (d){ return d[settings.yAxis]; })]);
+							var xAxis = d3.axisBottom(xScale)
+							.tickSize(0-innerHeight)
+							.tickPadding(8)
+							.ticks(5);
+			
+		
+			var yAxis = d3.axisLeft(yScale)
+							.tickSize(0-innerWidth)
+							.tickPadding(8)
+							.ticks(5);
+        //xScale.domain(d3.extent(chartData, function (d){  return d[settings.xAxis]; }));
+        //yScale.domain([0, d3.max(chartData, function (d){ return d[settings.yAxis]; })]);
 
         xAxisG.call(xAxis);
         yAxisG.call(yAxis);
