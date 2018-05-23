@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Rx';
 import * as d3 from "d3";
 import * as _ from "lodash";
 import { SlimLoadingBarService } from "ng2-slim-loading-bar";
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { DataTable, DataTableResource } from 'angular5-data-table';
 
 declare var $: any;
@@ -46,11 +46,11 @@ export class InteractiveComponent implements OnInit {
   constructor(private route: ActivatedRoute, 
               private dataService:DataService, 
               private loader: SlimLoadingBarService, 
-              public toastr: ToastsManager, 
+              public toastr: ToastrService, 
               vcr: ViewContainerRef,
               private router: Router) 
   { 
-    this.toastr.setRootViewContainerRef(vcr);
+    
   }
   
   
@@ -81,12 +81,15 @@ export class InteractiveComponent implements OnInit {
         (result:any) => {
           this.detailPage = result
           this.originalData = result
+
           //console.log(this.originalData)
           result.columnHeaders.map(column => {
             this.tableHeaders.push({"key" : column.name.toLowerCase().replace(" ", "-"), "value": column.name });
           });
           
           this.tableData = this.getTableRows(result.rows, this.tableHeaders);
+          
+          /* table end */
           
           this.getAllProperties(result).map(current => {
             this.sliderData.push(this.getSliderDataForProperty(current, this.getDataByProperty(result, current)))

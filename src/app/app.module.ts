@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { ToastModule } from 'ng2-toastr';
+import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
 import { SmheaderComponent } from './smheader/smheader.component';
 import { SmfooterComponent } from './smfooter/smfooter.component';
@@ -14,14 +14,11 @@ import { SmlogoComponent } from './smlogo/smlogo.component';
 import { HttpClientModule } from '@angular/common/http'; 
 import { HttpModule } from '@angular/http';
 import { InterceptorMdule } from './http-interceptor/http-interceptor.module';
-import { PipesModule } from './pipes/pipes.module';
 import { SlimLoadingBarModule } from 'ng2-slim-loading-bar';
 import { DataTableModule } from 'angular5-data-table';
 
 import { DataService } from './data.service';
 import { GraphComponent } from './graph/graph.component';
-import { MatTableModule} from '@angular/material/table';
-import { CdkTableModule} from '@angular/cdk/table';
 import { RangesliderComponent } from './rangeslider/rangeslider.component';
 import { OverviewComponent } from './overview/overview.component';
 import { AutocompleteComponent } from './autocomplete/autocomplete.component';
@@ -56,11 +53,9 @@ const routes: Routes = [
     HttpClientModule,
     HttpModule,
     InterceptorMdule,
-    MatTableModule,
-    PipesModule,
     SlimLoadingBarModule.forRoot(),
     BrowserAnimationsModule, 
-    ToastModule.forRoot(),
+    ToastrModule.forRoot(),
     DataTableModule
   ],
   providers: [DataService],

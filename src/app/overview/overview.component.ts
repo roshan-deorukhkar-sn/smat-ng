@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, ViewContainerRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SlimLoadingBarService } from "ng2-slim-loading-bar";
-import { ToastsManager } from 'ng2-toastr/ng2-toastr';
+import { ToastrService } from 'ngx-toastr';
 import { DataTable, DataTableResource } from 'angular5-data-table';
 
 import { DataService } from '../data.service';
@@ -19,8 +19,7 @@ export class OverviewComponent implements OnInit {
   pureSubstance =  {}
   substanceResources: any
   
-  constructor( private route: ActivatedRoute, private dataService:DataService, private router: Router, private loader: SlimLoadingBarService, public toastr: ToastsManager, vcr: ViewContainerRef) { 
-    this.toastr.setRootViewContainerRef(vcr);
+  constructor( private route: ActivatedRoute, private dataService:DataService, private router: Router, private loader: SlimLoadingBarService, public toastr: ToastrService, vcr: ViewContainerRef) { 
   }
 
   ngOnInit() {

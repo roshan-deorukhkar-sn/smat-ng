@@ -13,7 +13,7 @@
   <div class="col-12">
     <h3>Available substances</h3>
     <data-table
-      [items]="substance.data"
+      [items]="substance['data']"
       [pagination]="false"
       [header]="false"
       [indexColumn]="false"
@@ -21,7 +21,7 @@
       (rowClick)="clickedOnRow($event)"
       [multiSelect]="false">
       <data-table-column
-        *ngFor="let curColumn of substance.headers"
+        *ngFor="let curColumn of substance['headers']"
         property="{{curColumn.key}}"
         header="{{curColumn.value}}"
         sortable="true">
